@@ -36,41 +36,48 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StringHandler = void 0;
-var path_1 = require("path");
-var fs_1 = require("fs");
-var StringHandler = /** @class */ (function () {
-    function StringHandler() {
-    }
-    StringHandler.prototype.addCommand = function (self, cmds) {
+exports.AddAutoScene = void 0;
+var telegraf_1 = require("telegraf");
+var keyboard_1 = require("../keyboard/keyboard");
+var moment = require("moment");
+var AddAutoScene = /** @class */ (function () {
+    function AddAutoScene() {
         var _this = this;
-        self.bot.on('text', function (ctx) { return __awaiter(_this, void 0, void 0, function () {
-            var message;
-            var _this = this;
+        this.obj = {};
+        // /////////////////////
+        this.messageHandler = telegraf_1.Telegraf.on('text', function (ctx) {
+            _this.obj[ctx.from.id] = {};
+            if (ctx.message.text === '❌ Выйти') {
+                ctx.reply('Добро пожаловать, я - AutoBot\nВыберите, что вы хотите сделать и нажмите на кнопку', keyboard_1.startKeyboard);
+                return ctx.scene.leave();
+            }
+            _this.obj[ctx.from.id].msg = ctx.message.text;
+            ctx.reply('Отправьте фотографию автомобиля');
+            ctx.wizard.next();
+        });
+        this.photoHandler = telegraf_1.Telegraf.on('photo', function (ctx) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                message = ctx.message.text;
-                cmds.forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                    var pathToFile, cls, command;
-                    return __generator(this, function (_a) {
-                        pathToFile = (0, path_1.join)(__dirname, '..', 'commands', 'string', file);
-                        cls = require(pathToFile);
-                        command = new cls[Object.keys(cls)[0]];
-                        if (command.name === message) {
-                            return [2 /*return*/, command.exec(ctx, self.bot)];
-                        }
-                        return [2 /*return*/];
-                    });
-                }); });
+                this.obj[ctx.from.id].img = ctx.message.photo[1].file_id;
+                this.send(ctx);
+                ctx.scene.leave();
                 return [2 /*return*/];
             });
         }); });
+        // /////////////////////
+        this.exec = function () {
+            var SceneSendMessage = new telegraf_1.Scenes.WizardScene('sendMessage', _this.messageHandler, _this.photoHandler);
+            SceneSendMessage.enter(function (ctx) { return ctx.reply('Введите сообщение или воспользуйтесь шаблоном', keyboard_1.sampleKeyboard); });
+            return SceneSendMessage;
+        };
+    }
+    AddAutoScene.prototype.send = function (ctx) {
+        var user = ctx.scene.session.state.data.data;
+        var message = "".concat(moment().locale('ru').format('LLL'), "\n\n    <strong>\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C</strong>: ").concat(ctx.from.username, "\n\n    <strong>\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435</strong>: ").concat(this.obj[ctx.from.id].msg);
+        ctx.telegram.sendMessage(user.userID, message, { parse_mode: 'HTML' });
+        ctx.telegram.sendPhoto(user.userID, this.obj[ctx.from.id].img);
+        ctx.reply('✅ Усепешо!', keyboard_1.startKeyboard);
+        ctx.scene.leave();
     };
-    StringHandler.prototype.load = function (self) {
-        var pathToDir = (0, path_1.join)(__dirname, '..', 'commands', 'string');
-        var allFiles = (0, fs_1.readdirSync)(pathToDir);
-        var files = allFiles.filter(function (f) { return f.split('.')[1] === 'string'; });
-        return this.addCommand(self, files);
-    };
-    return StringHandler;
+    return AddAutoScene;
 }());
-exports.StringHandler = StringHandler;
+exports.AddAutoScene = AddAutoScene;

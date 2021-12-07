@@ -1,4 +1,19 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,55 +51,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BotCreator = void 0;
-var Handler_1 = require("./client/Handler");
-var express = require("express");
-var command_handler_1 = require("./handler/command.handler");
-var string_handler_1 = require("./handler/string.handler");
-var database_1 = require("./database/database");
-var callback_handler_1 = require("./handler/callback.handler");
-var BotCreator = /** @class */ (function () {
-    function BotCreator() {
+exports.MongoDatabase = void 0;
+var Mongo_1 = require("../client/Mongo");
+var User_schema_1 = require("./schemas/User.schema");
+var MongoDatabase = /** @class */ (function (_super) {
+    __extends(MongoDatabase, _super);
+    function MongoDatabase() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    BotCreator.prototype.start = function () {
-        var handler = this.handle();
-        this.startMongo();
-        this.createHttp();
-        return handler.bot.launch();
-    };
-    BotCreator.prototype.handle = function () {
-        var handler = new Handler_1.Handler();
-        var commands = new command_handler_1.CommandHandler();
-        var strings = new string_handler_1.StringHandler();
-        // const scenes = new ScenesHandler()
-        var callbacks = new callback_handler_1.CallbackHandler();
-        handler.add(callbacks);
-        // handler.add(scenes)
-        handler.add(commands);
-        handler.add(strings);
-        return handler;
-    };
-    BotCreator.prototype.startMongo = function () {
+    MongoDatabase.prototype.checkAvailability = function (userID) {
         return __awaiter(this, void 0, void 0, function () {
-            var mongo;
+            var data;
             return __generator(this, function (_a) {
-                mongo = new database_1.MongoDatabase();
-                return [2 /*return*/, mongo.connect()];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getUser(userID)];
+                    case 1:
+                        data = _a.sent();
+                        return [2 /*return*/, data && +data.userID === +userID];
+                }
             });
         });
     };
-    BotCreator.prototype.createHttp = function () {
+    MongoDatabase.prototype.getUser = function (userID) {
         return __awaiter(this, void 0, void 0, function () {
-            var app, port;
+            var data;
             return __generator(this, function (_a) {
-                app = express();
-                port = process.env.PORT || 8060;
-                app.get('/', function (_, res) { return res.send('Ready!'); });
-                app.listen(port, function () { return console.log('Listening on port', port); });
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, User_schema_1.default.findOne({ userID: userID })];
+                    case 1:
+                        data = _a.sent();
+                        return [2 /*return*/, data];
+                }
             });
         });
     };
-    return BotCreator;
-}());
-exports.BotCreator = BotCreator;
+    MongoDatabase.prototype.find = function (obj) {
+        return __awaiter(this, void 0, void 0, function () {
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, User_schema_1.default.findOne(obj)];
+                    case 1:
+                        data = _a.sent();
+                        return [2 /*return*/, data];
+                }
+            });
+        });
+    };
+    MongoDatabase.prototype.createUser = function (obj) {
+        var data = new User_schema_1.default(obj);
+        return data.save();
+    };
+    return MongoDatabase;
+}(Mongo_1.Mongo));
+exports.MongoDatabase = MongoDatabase;

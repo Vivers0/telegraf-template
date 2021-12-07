@@ -36,41 +36,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StringHandler = void 0;
-var path_1 = require("path");
-var fs_1 = require("fs");
-var StringHandler = /** @class */ (function () {
-    function StringHandler() {
+exports.ProfileString = void 0;
+var commands_1 = require("../../util/commands");
+var ProfileString = /** @class */ (function () {
+    function ProfileString() {
+        this.name = '🙎‍♂️ Ваш профиль';
     }
-    StringHandler.prototype.addCommand = function (self, cmds) {
-        var _this = this;
-        self.bot.on('text', function (ctx) { return __awaiter(_this, void 0, void 0, function () {
-            var message;
-            var _this = this;
+    ProfileString.prototype.exec = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                message = ctx.message.text;
-                cmds.forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                    var pathToFile, cls, command;
-                    return __generator(this, function (_a) {
-                        pathToFile = (0, path_1.join)(__dirname, '..', 'commands', 'string', file);
-                        cls = require(pathToFile);
-                        command = new cls[Object.keys(cls)[0]];
-                        if (command.name === message) {
-                            return [2 /*return*/, command.exec(ctx, self.bot)];
-                        }
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, commands_1.isProfile)(ctx)];
+                    case 1:
+                        _a.sent();
                         return [2 /*return*/];
-                    });
-                }); });
-                return [2 /*return*/];
+                }
             });
-        }); });
+        });
     };
-    StringHandler.prototype.load = function (self) {
-        var pathToDir = (0, path_1.join)(__dirname, '..', 'commands', 'string');
-        var allFiles = (0, fs_1.readdirSync)(pathToDir);
-        var files = allFiles.filter(function (f) { return f.split('.')[1] === 'string'; });
-        return this.addCommand(self, files);
-    };
-    return StringHandler;
+    return ProfileString;
 }());
-exports.StringHandler = StringHandler;
+exports.ProfileString = ProfileString;

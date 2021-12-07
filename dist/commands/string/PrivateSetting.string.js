@@ -36,41 +36,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StringHandler = void 0;
-var path_1 = require("path");
-var fs_1 = require("fs");
-var StringHandler = /** @class */ (function () {
-    function StringHandler() {
+exports.PrivateSettingString = void 0;
+var keyboard_1 = require("../../keyboard/keyboard");
+var PrivateSettingString = /** @class */ (function () {
+    function PrivateSettingString() {
+        this.name = '⚙️ Настройки приватности';
     }
-    StringHandler.prototype.addCommand = function (self, cmds) {
-        var _this = this;
-        self.bot.on('text', function (ctx) { return __awaiter(_this, void 0, void 0, function () {
-            var message;
-            var _this = this;
-            return __generator(this, function (_a) {
-                message = ctx.message.text;
-                cmds.forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                    var pathToFile, cls, command;
-                    return __generator(this, function (_a) {
-                        pathToFile = (0, path_1.join)(__dirname, '..', 'commands', 'string', file);
-                        cls = require(pathToFile);
-                        command = new cls[Object.keys(cls)[0]];
-                        if (command.name === message) {
-                            return [2 /*return*/, command.exec(ctx, self.bot)];
-                        }
-                        return [2 /*return*/];
-                    });
-                }); });
-                return [2 /*return*/];
+    PrivateSettingString.prototype.exec = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        _b = (_a = ctx).reply;
+                        _c = ['Тут вы можете изменить настройки приватности'];
+                        return [4 /*yield*/, (0, keyboard_1.permissionKeyboard)(ctx)];
+                    case 1: return [2 /*return*/, _b.apply(_a, _c.concat([_d.sent()]))];
+                }
             });
-        }); });
+        });
     };
-    StringHandler.prototype.load = function (self) {
-        var pathToDir = (0, path_1.join)(__dirname, '..', 'commands', 'string');
-        var allFiles = (0, fs_1.readdirSync)(pathToDir);
-        var files = allFiles.filter(function (f) { return f.split('.')[1] === 'string'; });
-        return this.addCommand(self, files);
-    };
-    return StringHandler;
+    return PrivateSettingString;
 }());
-exports.StringHandler = StringHandler;
+exports.PrivateSettingString = PrivateSettingString;

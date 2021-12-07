@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
+    "target": "ES5",
     "lib": ["es2015"],
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "dist",
-    "baseUrl": "src",
-    "experimentalDecorators": true
+    "outDir": "./dist/",
+    "rootDir": "./src/",
+    "skipLibCheck": false
   },
-  "include": ["src/**/*"]
+  "include": ["./src/**/*"]
 }

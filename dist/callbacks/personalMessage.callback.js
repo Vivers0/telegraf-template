@@ -36,41 +36,35 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StringHandler = void 0;
-var path_1 = require("path");
-var fs_1 = require("fs");
-var StringHandler = /** @class */ (function () {
-    function StringHandler() {
-    }
-    StringHandler.prototype.addCommand = function (self, cmds) {
+exports.PersonalMessage = void 0;
+var User_scema_1 = require("../database/schemas/User.scema");
+var telegraf_1 = require("telegraf");
+var PersonalMessage = /** @class */ (function () {
+    function PersonalMessage() {
         var _this = this;
-        self.bot.on('text', function (ctx) { return __awaiter(_this, void 0, void 0, function () {
-            var message;
-            var _this = this;
-            return __generator(this, function (_a) {
-                message = ctx.message.text;
-                cmds.forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                    var pathToFile, cls, command;
-                    return __generator(this, function (_a) {
-                        pathToFile = (0, path_1.join)(__dirname, '..', 'commands', 'string', file);
-                        cls = require(pathToFile);
-                        command = new cls[Object.keys(cls)[0]];
-                        if (command.name === message) {
-                            return [2 /*return*/, command.exec(ctx, self.bot)];
-                        }
-                        return [2 /*return*/];
-                    });
-                }); });
-                return [2 /*return*/];
-            });
-        }); });
-    };
-    StringHandler.prototype.load = function (self) {
-        var pathToDir = (0, path_1.join)(__dirname, '..', 'commands', 'string');
-        var allFiles = (0, fs_1.readdirSync)(pathToDir);
-        var files = allFiles.filter(function (f) { return f.split('.')[1] === 'string'; });
-        return this.addCommand(self, files);
-    };
-    return StringHandler;
+        this.exec = function (self) {
+            self.bot.action("personalMessage", function (ctx) { return __awaiter(_this, void 0, void 0, function () {
+                var userID, user;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            userID = ctx.from.id;
+                            return [4 /*yield*/, User_scema_1.default.findOneAndUpdate({ userID: userID })];
+                        case 1:
+                            user = _a.sent();
+                            user.permissions.isPersonalMessage = !user.permissions.isPersonalMessage;
+                            user.save();
+                            ctx.deleteMessage();
+                            ctx.reply('Тут вы можете изменить настройки приватности', telegraf_1.Markup.inlineKeyboard([
+                                telegraf_1.Markup.button.callback("".concat(user.permissions.isCalled ? '✅' : '❌', " \u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044C \u0437\u0432\u043E\u043D\u043A\u0438"), 'isCall'),
+                                telegraf_1.Markup.button.callback("".concat(user.permissions.isPersonalMessage ? '✅' : '❌', " \u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044C \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0435 \u0441\u043E\u043E\u0431\u0448\u0435\u043D\u0438\u044F"), 'personalMessage'),
+                            ]));
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        };
+    }
+    return PersonalMessage;
 }());
-exports.StringHandler = StringHandler;
+exports.PersonalMessage = PersonalMessage;

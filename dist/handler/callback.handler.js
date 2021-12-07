@@ -36,41 +36,32 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StringHandler = void 0;
+exports.CallbackHandler = void 0;
 var path_1 = require("path");
 var fs_1 = require("fs");
-var StringHandler = /** @class */ (function () {
-    function StringHandler() {
+var CallbackHandler = /** @class */ (function () {
+    function CallbackHandler() {
     }
-    StringHandler.prototype.addCommand = function (self, cmds) {
-        var _this = this;
-        self.bot.on('text', function (ctx) { return __awaiter(_this, void 0, void 0, function () {
-            var message;
-            var _this = this;
+    CallbackHandler.prototype.addCallback = function (self, callback) {
+        callback.map(function (file) {
+            var pathToFile = (0, path_1.join)(__dirname, '..', 'callbacks', file);
+            var cls = require(pathToFile);
+            var command = new cls[Object.keys(cls)[0]];
+            return command.exec(self);
+        });
+    };
+    CallbackHandler.prototype.load = function (self) {
+        return __awaiter(this, void 0, void 0, function () {
+            var pathToDir, allFiles, files;
             return __generator(this, function (_a) {
-                message = ctx.message.text;
-                cmds.forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                    var pathToFile, cls, command;
-                    return __generator(this, function (_a) {
-                        pathToFile = (0, path_1.join)(__dirname, '..', 'commands', 'string', file);
-                        cls = require(pathToFile);
-                        command = new cls[Object.keys(cls)[0]];
-                        if (command.name === message) {
-                            return [2 /*return*/, command.exec(ctx, self.bot)];
-                        }
-                        return [2 /*return*/];
-                    });
-                }); });
+                pathToDir = (0, path_1.join)(__dirname, '..', 'callbacks');
+                allFiles = (0, fs_1.readdirSync)(pathToDir);
+                files = allFiles.filter(function (f) { return f.split('.')[1] === 'callback'; });
+                this.addCallback(self, files);
                 return [2 /*return*/];
             });
-        }); });
+        });
     };
-    StringHandler.prototype.load = function (self) {
-        var pathToDir = (0, path_1.join)(__dirname, '..', 'commands', 'string');
-        var allFiles = (0, fs_1.readdirSync)(pathToDir);
-        var files = allFiles.filter(function (f) { return f.split('.')[1] === 'string'; });
-        return this.addCommand(self, files);
-    };
-    return StringHandler;
+    return CallbackHandler;
 }());
-exports.StringHandler = StringHandler;
+exports.CallbackHandler = CallbackHandler;

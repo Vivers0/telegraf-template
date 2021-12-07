@@ -1,9 +1,9 @@
-import { ICtx } from "../types/types";
-import { Command } from "../types/command.types";
+import { IContext } from "../types/types";
 
-export class StartCommand extends Command {
+export class StartCommand {
     name = 'start';
-    exec(ctx: ICtx) {
-        ctx.reply('Welcome!');
+
+    exec = async (ctx: IContext) => {
+       ctx.reply('Hi!')
     }
 }

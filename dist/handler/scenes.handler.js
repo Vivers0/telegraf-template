@@ -36,41 +36,38 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StringHandler = void 0;
+exports.ScenesHandler = void 0;
 var path_1 = require("path");
 var fs_1 = require("fs");
-var StringHandler = /** @class */ (function () {
-    function StringHandler() {
+var telegraf_1 = require("telegraf");
+var ScenesHandler = /** @class */ (function () {
+    function ScenesHandler() {
     }
-    StringHandler.prototype.addCommand = function (self, cmds) {
-        var _this = this;
-        self.bot.on('text', function (ctx) { return __awaiter(_this, void 0, void 0, function () {
-            var message;
-            var _this = this;
+    ScenesHandler.prototype.handle = function (self, scenes) {
+        var stages = new telegraf_1.Scenes.Stage(scenes);
+        self.bot.use((0, telegraf_1.session)(), stages.middleware());
+    };
+    ScenesHandler.prototype.addScenes = function (self, cmds) {
+        var arrayWithScenes = cmds.map(function (file) {
+            var pathToFile = (0, path_1.join)(__dirname, '..', 'scenes', file);
+            var cls = require(pathToFile);
+            var command = new cls[Object.keys(cls)[0]];
+            return command.exec();
+        });
+        return this.handle(self, arrayWithScenes);
+    };
+    ScenesHandler.prototype.load = function (self) {
+        return __awaiter(this, void 0, void 0, function () {
+            var pathToDir, allFiles, files;
             return __generator(this, function (_a) {
-                message = ctx.message.text;
-                cmds.forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                    var pathToFile, cls, command;
-                    return __generator(this, function (_a) {
-                        pathToFile = (0, path_1.join)(__dirname, '..', 'commands', 'string', file);
-                        cls = require(pathToFile);
-                        command = new cls[Object.keys(cls)[0]];
-                        if (command.name === message) {
-                            return [2 /*return*/, command.exec(ctx, self.bot)];
-                        }
-                        return [2 /*return*/];
-                    });
-                }); });
+                pathToDir = (0, path_1.join)(__dirname, '..', 'scenes');
+                allFiles = (0, fs_1.readdirSync)(pathToDir);
+                files = allFiles.filter(function (f) { return f.split('.')[1] === 'scene'; });
+                this.addScenes(self, files);
                 return [2 /*return*/];
             });
-        }); });
+        });
     };
-    StringHandler.prototype.load = function (self) {
-        var pathToDir = (0, path_1.join)(__dirname, '..', 'commands', 'string');
-        var allFiles = (0, fs_1.readdirSync)(pathToDir);
-        var files = allFiles.filter(function (f) { return f.split('.')[1] === 'string'; });
-        return this.addCommand(self, files);
-    };
-    return StringHandler;
+    return ScenesHandler;
 }());
-exports.StringHandler = StringHandler;
+exports.ScenesHandler = ScenesHandler;
